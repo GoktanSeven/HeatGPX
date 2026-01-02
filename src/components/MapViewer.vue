@@ -57,7 +57,7 @@ function initMap() {
   map = L.map(mapRef.value, {
     center: [46.603354, 1.888334],
     zoom: 6,
-    zoomControl: true
+    zoomControl: false
   })
 
   // Utiliser CartoDB Voyager (bon équilibre lisibilité/couleurs)
