@@ -35,11 +35,16 @@ const colors = {
 
 onMounted(() => {
   initMap()
+  // Afficher les traces déjà chargées si elles existent
+  if (tracksStore.filteredTracks.length > 0) {
+    updateTracks(tracksStore.filteredTracks)
+  }
 })
 
 watch(
   () => tracksStore.filteredTracks,
   (tracks) => {
+    console.log('🗺️ Mise à jour des traces sur la carte:', tracks.length)
     updateTracks(tracks)
   },
   { deep: true }
@@ -63,7 +68,11 @@ function initMap() {
 }
 
 function updateTracks(tracks: GpxTrack[]) {
-  if (!map) return
+  console.log('🎨 updateTracks appelée avec', tracks.length, 'trace(s)')
+  if (!map) {
+    console.error('❌ La carte n\'est pas initialisée')
+    return
+  }
 
   // Supprimer les anciennes traces
   trackLayers.forEach((layer) => layer.remove())
@@ -72,6 +81,7 @@ function updateTracks(tracks: GpxTrack[]) {
   // Ajouter les nouvelles traces
   tracks.forEach((track) => {
     const points = track.points.map((p) => [p.lat, p.lon] as [number, number])
+    console.log(`➕ Ajout de ${track.name} avec ${points.length} points`)
 
     const polyline = L.polyline(points, {
       color: '#FF6600',

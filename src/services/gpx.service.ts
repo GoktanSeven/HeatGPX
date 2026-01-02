@@ -73,7 +73,7 @@ export class GpxService {
       for (const fileInfo of data.tracks) {
         try {
           const fileResponse = await fetch(
-            `http://localhost:3001/api/tracks/${fileInfo.year}/${String(fileInfo.month).padStart(2, '0')}/${fileInfo.type}/${fileInfo.filename}`
+            `http://localhost:3001/api/tracks/${fileInfo.year}/${String(fileInfo.month).padStart(2, '0')}/${fileInfo.type}/${encodeURIComponent(fileInfo.filename)}`
           )
           
           if (fileResponse.ok) {

@@ -20,9 +20,17 @@ onMounted(async () => {
   // Charger les traces au démarrage
   tracksStore.isLoading = true
   try {
+    console.log('🔍 Chargement des traces GPX...')
     const tracks = await GpxService.loadAllTracks()
+    console.log(`✅ ${tracks.length} trace(s) chargée(s)`, tracks)
+    if (tracks.length > 0) {
+      console.log('📍 Première trace:', {
+        name: tracks[0].name,
+        points: tracks[0].points.length,
+        firstPoint: tracks[0].points[0]
+      })
+    }
     tracksStore.addTracks(tracks)
-    console.log(`✅ ${tracks.length} trace(s) chargée(s)`)
   } catch (error) {
     console.error('❌ Erreur lors du chargement des traces:', error)
     tracksStore.error = 'Impossible de charger les traces. Assurez-vous que le serveur backend est démarré.'

@@ -21,14 +21,6 @@ export const useTracksStore = defineStore('tracks', () => {
       if (track.type === 'sport' && !filters.value.showSport) return false
       if (track.type === 'divers' && !filters.value.showDivers) return false
 
-      // Filtrer par sous-type
-      if (track.type === 'sport' && !filters.value.sportTypes.includes(track.subType as any)) {
-        return false
-      }
-      if (track.type === 'divers' && !filters.value.diversTypes.includes(track.subType as any)) {
-        return false
-      }
-
       // Filtrer par période (si défini)
       if (filters.value.yearRange) {
         const [minYear, maxYear] = filters.value.yearRange

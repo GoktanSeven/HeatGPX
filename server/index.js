@@ -39,7 +39,8 @@ function scanGpxFiles(dir, baseDir = dir) {
         // Format attendu: YYYY/MM/type/filename.gpx
         const year = parts[0]
         const month = parts[1]
-        const type = parts[2] // 'sport' ou 'divers'
+        const typeRaw = parts[2] // 'sport', 'Sport', 'divers', 'Divers'
+        const type = typeRaw ? typeRaw.toLowerCase() : 'divers'
         const filename = parts[3]
 
         // Extraire le sous-type du nom du fichier
@@ -82,13 +83,21 @@ app.get('/api/tracks', (req, res) => {
  * GET /api/tracks/:year/:month/:type/:filename
  * Retourne le contenu d'un fichier GPX spécifique
  */
-app.get('/api/tracks/:year/:month/:type/:filename', (req, res) => {
+app.get('/api/tracks/:year/:month/:type/:filename(*)', (req, res) => {
   try {
     const { year, month, type, filename } = req.params
-    const filePath = path.join(GPX_DATA_DIR, year, month, type, filename)
+    
+    // Essayer d'abord avec le chemin exact
+    let filePath = path.join(GPX_DATA_DIR, year, month, type, filename)
+    
+    // Si pas trouvé, essayer avec majuscule (Sport/Divers)
+    if (!fs.existsSync(filePath)) {
+      const typeCapitalized = type.charAt(0).toUpperCase() + type.slice(1)
+      filePath = path.join(GPX_DATA_DIR, year, month, typeCapitalized, filename)
+    }
 
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ success: false, error: 'Fichier non trouvé' })
+      return res.status(404).json({ success: false, error: 'Fichier non trouvé', tried: filePath })
     }
 
     const content = fs.readFileSync(filePath, 'utf-8')
