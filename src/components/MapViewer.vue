@@ -73,10 +73,8 @@ function updateTracks(tracks: GpxTrack[]) {
   tracks.forEach((track) => {
     const points = track.points.map((p) => [p.lat, p.lon] as [number, number])
 
-    const color = getTrackColor(track)
-
     const polyline = L.polyline(points, {
-      color: color,
+      color: '#FF6600',
       weight: 3,
       opacity: 0.7,
       smoothFactor: 1

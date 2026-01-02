@@ -55,13 +55,47 @@ export class GpxService {
 
   /**
    * Charge tous les fichiers GPX depuis le dossier gpx-data/
-   * Note: Cette fonction nécessitera un backend pour lister et lire les fichiers
    */
   static async loadAllTracks(): Promise<GpxTrack[]> {
-    // TODO: Implémenter le chargement via un backend ou API
-    // Pour l'instant, retourne un tableau vide
-    console.warn('loadAllTracks: Backend non implémenté')
-    return []
+    try {
+      const API_URL = 'http://localhost:3001/api/tracks'
+      
+      // Récupérer la liste des fichiers GPX
+      const response = await fetch(API_URL)
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des fichiers GPX')
+      }
+
+      const data = await response.json()
+      const tracks: GpxTrack[] = []
+
+      // Charger le contenu de chaque fichier
+      for (const fileInfo of data.tracks) {
+        try {
+          const fileResponse = await fetch(
+            `http://localhost:3001/api/tracks/${fileInfo.year}/${String(fileInfo.month).padStart(2, '0')}/${fileInfo.type}/${fileInfo.filename}`
+          )
+          
+          if (fileResponse.ok) {
+            const fileData = await fileResponse.json()
+            const track = await this.parseGpxFile(
+              fileData.content,
+              fileInfo.path,
+              fileInfo.type,
+              fileInfo.subType
+            )
+            tracks.push(track)
+          }
+        } catch (error) {
+          console.error(`Erreur lors du chargement de ${fileInfo.filename}:`, error)
+        }
+      }
+
+      return tracks
+    } catch (error) {
+      console.error('Erreur loadAllTracks:', error)
+      return []
+    }
   }
 
   /**
