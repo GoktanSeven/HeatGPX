@@ -56,7 +56,7 @@ function initMap() {
   // Initialiser la carte centrée sur Goussainville
   map = L.map(mapRef.value, {
     center: [49.034, 2.476],
-    zoom: 13,
+    zoom: 12,
     zoomControl: false
   })
 
