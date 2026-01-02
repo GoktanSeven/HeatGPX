@@ -1,8 +1,10 @@
 <template>
   <div class="map-view">
-    <TrackFilters />
+    <div class="top-bar">
+      <TrackFilters />
+      <StatsPanel />
+    </div>
     <MapViewer />
-    <StatsPanel />
   </div>
 </template>
 
@@ -46,6 +48,16 @@ onMounted(async () => {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  position: relative;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-surface);
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  gap: 20px;
 }
 </style>
