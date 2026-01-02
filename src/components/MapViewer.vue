@@ -60,10 +60,11 @@ function initMap() {
     zoomControl: true
   })
 
-  // Utiliser OpenStreetMap classique
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 19
+  // Utiliser CartoDB Voyager (bon équilibre lisibilité/couleurs)
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+    maxZoom: 19,
+    subdomains: 'abcd'
   }).addTo(map)
 }
 
@@ -85,8 +86,8 @@ function updateTracks(tracks: GpxTrack[]) {
 
     const polyline = L.polyline(points, {
       color: '#FF6600',
-      weight: 3,
-      opacity: 0.7,
+      weight: 2.5,
+      opacity: 0.8,
       smoothFactor: 1
     }).addTo(map!)
 
