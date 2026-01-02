@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 import { useTracksStore } from '@/stores/tracks.store'
 import type { SportType, DiversType } from '@/types/gpx.types'
 
@@ -33,8 +33,17 @@ const filters = reactive({
   diversTypes: [...tracksStore.filters.diversTypes]
 })
 
-function updateFilters() {
+async function updateFilters() {
+  tracksStore.isFiltering = true
+  
+  // Forcer le rendu de l'UI avant le filtrage
+  await new Promise(resolve => setTimeout(resolve, 50))
+  
   tracksStore.updateFilters(filters)
+  
+  // Laisser l'indicateur visible 400ms après le filtrage
+  await new Promise(resolve => setTimeout(resolve, 400))
+  tracksStore.isFiltering = false
 }
 
 function resetFilters() {

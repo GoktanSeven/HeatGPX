@@ -12,6 +12,7 @@ export const useTracksStore = defineStore('tracks', () => {
     diversTypes: ['voiture', 'moto', 'bateau']
   })
   const isLoading = ref(false)
+  const isFiltering = ref(false)
   const error = ref<string | null>(null)
 
   // Getters
@@ -76,6 +77,7 @@ export const useTracksStore = defineStore('tracks', () => {
     tracks,
     filters,
     isLoading,
+    isFiltering,
     error,
     // Getters
     filteredTracks,

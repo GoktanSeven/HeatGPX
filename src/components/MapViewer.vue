@@ -53,10 +53,10 @@ watch(
 function initMap() {
   if (!mapRef.value) return
 
-  // Initialiser la carte centrée sur la France
+  // Initialiser la carte centrée sur Goussainville
   map = L.map(mapRef.value, {
-    center: [46.603354, 1.888334],
-    zoom: 6,
+    center: [49.034, 2.476],
+    zoom: 13,
     zoomControl: false
   })
 
@@ -104,12 +104,6 @@ function updateTracks(tracks: GpxTrack[]) {
 
     trackLayers.push(polyline)
   })
-
-  // Ajuster la vue pour afficher toutes les traces
-  if (trackLayers.length > 0) {
-    const group = L.featureGroup(trackLayers)
-    map.fitBounds(group.getBounds(), { padding: [50, 50] })
-  }
 }
 
 function getTrackColor(track: GpxTrack): string {
