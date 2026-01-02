@@ -23,38 +23,6 @@
         </div>
       </div>
 
-      <!-- Filtres sport -->
-      <div v-if="filters.showSport" class="filter-section">
-        <h3>Types de sport</h3>
-        <div class="filter-group">
-          <label v-for="type in sportTypes" :key="type" class="filter-checkbox">
-            <input
-              type="checkbox"
-              :value="type"
-              v-model="filters.sportTypes"
-              @change="updateFilters"
-            />
-            <span class="sport-label" :data-type="type">{{ formatType(type) }}</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Filtres divers -->
-      <div v-if="filters.showDivers" class="filter-section">
-        <h3>Types divers</h3>
-        <div class="filter-group">
-          <label v-for="type in diversTypes" :key="type" class="filter-checkbox">
-            <input
-              type="checkbox"
-              :value="type"
-              v-model="filters.diversTypes"
-              @change="updateFilters"
-            />
-            <span class="divers-label" :data-type="type">{{ formatType(type) }}</span>
-          </label>
-        </div>
-      </div>
-
       <!-- Bouton réinitialiser -->
       <button @click="resetFilters" class="reset-btn">Réinitialiser</button>
     </div>
