@@ -86,7 +86,7 @@ function updateTracks(tracks: GpxTrack[]) {
 
     const polyline = L.polyline(points, {
       color: '#FF6600',
-      weight: 2.5,
+      weight: 1.2,
       opacity: 0.8,
       smoothFactor: 1
     }).addTo(map!)
