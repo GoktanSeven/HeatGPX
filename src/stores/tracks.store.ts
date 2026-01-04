@@ -39,11 +39,32 @@ export const useTracksStore = defineStore('tracks', () => {
 
   const stats = computed<HeatmapStats>(() => {
     const filtered = filteredTracks.value
+    const countries = new Set<string>()
+    const cities = new Set<string>()
+    
+    filtered.forEach(track => {
+      track.countries?.forEach(c => countries.add(c))
+      track.cities?.forEach(c => cities.add(c))
+    })
+    
+    // Calculer l'altitude maximale
+    let maxElevation = 0
+    filtered.forEach(track => {
+      track.points.forEach(point => {
+        if (point.ele && point.ele > maxElevation) {
+          maxElevation = point.ele
+        }
+      })
+    })
+    
     return {
       totalDistance: filtered.reduce((sum, t) => sum + (t.distance || 0), 0),
       totalTracks: filtered.length,
       sportTracks: filtered.filter((t) => t.type === 'sport').length,
-      diversTracks: filtered.filter((t) => t.type === 'divers').length
+      diversTracks: filtered.filter((t) => t.type === 'divers').length,
+      countries,
+      cities,
+      maxElevation: maxElevation > 0 ? maxElevation : undefined
     }
   })
 

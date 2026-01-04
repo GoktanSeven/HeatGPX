@@ -43,4 +43,5 @@ export interface HeatmapStats {
   diversTracks: number
   countries?: Set<string>
   cities?: Set<string>
+  maxElevation?: number
 }

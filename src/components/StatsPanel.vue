@@ -20,6 +20,11 @@
         <span class="stat-label">Distance</span>
         <span class="stat-value">{{ formatDistance(stats.totalDistance) }}</span>
       </div>
+
+      <div class="stat-item" v-if="stats.maxElevation">
+        <span class="stat-label">Alt. max</span>
+        <span class="stat-value">{{ Math.round(stats.maxElevation) }} m</span>
+      </div>
     </div>
   </div>
 </template>
