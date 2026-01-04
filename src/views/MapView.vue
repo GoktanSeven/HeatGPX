@@ -1,7 +1,10 @@
 <template>
   <div class="map-view">
     <div class="top-bar">
-      <TrackFilters />
+      <div class="left-section">
+        <h1 class="app-title" @click="reloadApp">HeatGPX</h1>
+        <TrackFilters />
+      </div>
       <StatsPanel />
       
       <!-- Indicateur de filtrage -->
@@ -53,6 +56,10 @@ onMounted(async () => {
     tracksStore.isLoading = false
   }
 })
+
+function reloadApp() {
+  window.location.reload()
+}
 </script>
 
 <style scoped>
@@ -73,6 +80,26 @@ onMounted(async () => {
   z-index: 1000;
   gap: 20px;
   position: relative;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #FF6600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.app-title:hover {
+  opacity: 0.8;
 }
 
 .filtering-indicator {
