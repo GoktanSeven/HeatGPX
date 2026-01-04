@@ -56,7 +56,7 @@ export class GpxService {
   /**
    * Charge tous les fichiers GPX depuis le dossier gpx-data/
    */
-  static async loadAllTracks(): Promise<GpxTrack[]> {
+  static async loadAllTracks(onProgress?: (current: number, total: number) => void): Promise<GpxTrack[]> {
     try {
       const API_URL = 'http://localhost:3001/api/tracks'
       
@@ -68,9 +68,11 @@ export class GpxService {
 
       const data = await response.json()
       const tracks: GpxTrack[] = []
+      const total = data.tracks.length
 
       // Charger le contenu de chaque fichier
-      for (const fileInfo of data.tracks) {
+      for (let i = 0; i < data.tracks.length; i++) {
+        const fileInfo = data.tracks[i]
         try {
           const fileResponse = await fetch(
             `http://localhost:3001/api/tracks/${fileInfo.year}/${String(fileInfo.month).padStart(2, '0')}/${fileInfo.type}/${encodeURIComponent(fileInfo.filename)}`
@@ -85,6 +87,11 @@ export class GpxService {
               fileInfo.subType
             )
             tracks.push(track)
+            
+            // Notifier la progression
+            if (onProgress) {
+              onProgress(i + 1, total)
+            }
           }
         } catch (error) {
           console.error(`Erreur lors du chargement de ${fileInfo.filename}:`, error)

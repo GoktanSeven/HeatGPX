@@ -17,15 +17,26 @@
     
     <!-- Overlay de chargement -->
     <div v-if="tracksStore.isLoading" class="loading-overlay">
-      <div class="spinner"></div>
-      <p class="loading-text">Chargement des traces GPX...</p>
-      <p class="loading-subtext">Analyse des itinéraires et géolocalisation</p>
+      <div class="loading-content">
+        <p class="loading-text">Chargement des traces GPX...</p>
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div 
+              class="progress-fill" 
+              :style="{ width: progressPercentage + '%' }"
+            ></div>
+          </div>
+          <p class="progress-text">
+            {{ tracksStore.loadingProgress.current }} / {{ tracksStore.loadingProgress.total }} traces
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import MapViewer from '@/components/MapViewer.vue'
 import TrackFilters from '@/components/TrackFilters.vue'
 import StatsPanel from '@/components/StatsPanel.vue'
@@ -34,12 +45,19 @@ import { GpxService } from '@/services/gpx.service'
 
 const tracksStore = useTracksStore()
 
+const progressPercentage = computed(() => {
+  const { current, total } = tracksStore.loadingProgress
+  return total > 0 ? (current / total) * 100 : 0
+})
+
 onMounted(async () => {
   // Charger les traces au démarrage
   tracksStore.isLoading = true
   try {
     console.log('🔍 Chargement des traces GPX...')
-    const tracks = await GpxService.loadAllTracks()
+    const tracks = await GpxService.loadAllTracks((current, total) => {
+      tracksStore.loadingProgress = { current, total }
+    })
     console.log(`✅ ${tracks.length} trace(s) chargée(s)`, tracks)
     if (tracks.length > 0) {
       console.log('📍 Première trace:', {
@@ -141,14 +159,11 @@ function reloadApp() {
   backdrop-filter: blur(5px);
 }
 
-.spinner {
-  width: 60px;
-  height: 60px;
-  border: 5px solid rgba(255, 102, 0, 0.2);
-  border-top: 5px solid #FF6600;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 20px;
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
 .loading-text {
@@ -156,11 +171,33 @@ function reloadApp() {
   font-size: 20px;
   font-weight: 600;
   margin: 0;
-  margin-bottom: 8px;
 }
 
-.loading-subtext {
-  color: rgba(255, 255, 255, 0.7);
+.progress-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 300px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #FF6600;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.progress-text {
+  color: rgba(255, 255, 255, 0.8);
   font-size: 14px;
   margin: 0;
 }

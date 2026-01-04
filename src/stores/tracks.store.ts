@@ -14,6 +14,7 @@ export const useTracksStore = defineStore('tracks', () => {
   const isLoading = ref(false)
   const isFiltering = ref(false)
   const error = ref<string | null>(null)
+  const loadingProgress = ref({ current: 0, total: 0 })
 
   // Getters
   const filteredTracks = computed(() => {
@@ -100,6 +101,7 @@ export const useTracksStore = defineStore('tracks', () => {
     isLoading,
     isFiltering,
     error,
+    loadingProgress,
     // Getters
     filteredTracks,
     stats,
