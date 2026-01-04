@@ -14,6 +14,7 @@ import type { GpxTrack } from '@/types/gpx.types'
 const mapRef = ref<HTMLElement>()
 let map: L.Map | null = null
 const trackLayers: L.Polyline[] = []
+const trackMarkers: L.CircleMarker[] = []
 
 const tracksStore = useTracksStore()
 
@@ -66,6 +67,21 @@ function initMap() {
     maxZoom: 19,
     subdomains: 'abcd'
   }).addTo(map)
+
+  // Écouter les changements de zoom pour afficher/cacher les marqueurs
+  map.on('zoomend', updateMarkersVisibility)
+}
+
+function updateMarkersVisibility() {
+  if (!map) return
+  
+  const zoom = map.getZoom()
+  // Afficher les marqueurs seulement si le zoom est inférieur à 10
+  if (zoom < 10) {
+    trackMarkers.forEach(marker => marker.addTo(map!))
+  } else {
+    trackMarkers.forEach(marker => marker.remove())
+  }
 }
 
 function updateTracks(tracks: GpxTrack[]) {
@@ -78,6 +94,10 @@ function updateTracks(tracks: GpxTrack[]) {
   // Supprimer les anciennes traces
   trackLayers.forEach((layer) => layer.remove())
   trackLayers.length = 0
+  
+  // Supprimer les anciens marqueurs
+  trackMarkers.forEach((marker) => marker.remove())
+  trackMarkers.length = 0
 
   // Ajouter les nouvelles traces
   tracks.forEach((track) => {
@@ -92,7 +112,7 @@ function updateTracks(tracks: GpxTrack[]) {
     }).addTo(map!)
 
     // Ajouter un popup avec les infos de la trace
-    polyline.bindPopup(`
+    const popupContent = `
       <div class="track-popup">
         <h3>${track.name}</h3>
         <p><strong>Type:</strong> ${track.type} - ${track.subType}</p>
@@ -100,10 +120,32 @@ function updateTracks(tracks: GpxTrack[]) {
         ${track.distance ? `<p><strong>Distance:</strong> ${(track.distance / 1000).toFixed(2)} km</p>` : ''}
         ${track.duration ? `<p><strong>Durée:</strong> ${formatDuration(track.duration)}</p>` : ''}
       </div>
-    `)
-
+    `
+    
+    polyline.bindPopup(popupContent)
     trackLayers.push(polyline)
+    
+    // Créer un marqueur circulaire au centre de la trace
+    if (points.length > 0) {
+      const centerIndex = Math.floor(points.length / 2)
+      const centerPoint = points[centerIndex]
+      
+      const marker = L.circleMarker(centerPoint, {
+        radius: 4,
+        fillColor: '#FF6600',
+        color: '#FF6600',
+        weight: 1,
+        opacity: 0.8,
+        fillOpacity: 0.6
+      }).addTo(map!)
+      
+      marker.bindPopup(popupContent)
+      trackMarkers.push(marker)
+    }
   })
+  
+  // Mettre à jour la visibilité des marqueurs selon le zoom actuel
+  updateMarkersVisibility()
 }
 
 function getTrackColor(track: GpxTrack): string {
