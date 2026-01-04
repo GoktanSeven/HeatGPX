@@ -21,9 +21,9 @@
         <span class="stat-value">{{ formatDistance(stats.totalDistance) }}</span>
       </div>
 
-      <div class="stat-item" v-if="stats.maxElevation">
+      <div class="stat-item clickable" v-if="stats.maxElevation" @click="emitFlyToHighest">
         <span class="stat-label">Alt. max</span>
-        <span class="stat-value">{{ Math.round(stats.maxElevation) }} m</span>
+        <span class="stat-value">🏔️ {{ Math.round(stats.maxElevation) }} m</span>
       </div>
     </div>
   </div>
@@ -33,9 +33,17 @@
 import { ref, computed } from 'vue'
 import { useTracksStore } from '@/stores/tracks.store'
 
+const emit = defineEmits<{
+  flyToHighest: []
+}>()
+
 const tracksStore = useTracksStore()
 
 const stats = computed(() => tracksStore.stats)
+
+function emitFlyToHighest() {
+  emit('flyToHighest')
+}
 
 function formatDistance(meters: number): string {
   if (meters < 1000) {
@@ -81,5 +89,16 @@ function formatDistance(meters: number): string {
 
 .stat-value.divers {
   color: #ffeaa7;
+}
+
+.stat-item.clickable {
+  cursor: pointer;
+  transition: background 0.2s;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.stat-item.clickable:hover {
+  background: rgba(255, 102, 0, 0.15);
 }
 </style>

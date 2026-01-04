@@ -5,7 +5,7 @@
         <h1 class="app-title" @click="reloadApp">HeatGPX</h1>
         <TrackFilters />
       </div>
-      <StatsPanel />
+      <StatsPanel @fly-to-highest="handleFlyToHighest" />
       
       <!-- Indicateur de filtrage -->
       <div v-if="tracksStore.isFiltering" class="filtering-indicator">
@@ -13,7 +13,7 @@
         <span>Mise à jour...</span>
       </div>
     </div>
-    <MapViewer />
+    <MapViewer ref="mapViewerRef" />
     
     <!-- Overlay de chargement -->
     <div v-if="tracksStore.isLoading" class="loading-overlay">
@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import MapViewer from '@/components/MapViewer.vue'
 import TrackFilters from '@/components/TrackFilters.vue'
 import StatsPanel from '@/components/StatsPanel.vue'
@@ -44,6 +44,7 @@ import { useTracksStore } from '@/stores/tracks.store'
 import { GpxService } from '@/services/gpx.service'
 
 const tracksStore = useTracksStore()
+const mapViewerRef = ref<InstanceType<typeof MapViewer>>()
 
 const progressPercentage = computed(() => {
   const { current, total } = tracksStore.loadingProgress
@@ -77,6 +78,10 @@ onMounted(async () => {
 
 function reloadApp() {
   window.location.reload()
+}
+
+function handleFlyToHighest() {
+  mapViewerRef.value?.flyToHighestPoint()
 }
 </script>
 

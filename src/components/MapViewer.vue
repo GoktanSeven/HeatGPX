@@ -15,6 +15,8 @@ const mapRef = ref<HTMLElement>()
 let map: L.Map | null = null
 const trackLayers: L.Polyline[] = []
 const trackMarkers: L.CircleMarker[] = []
+let highestPointMarker: L.Marker | null = null
+let highestPointCoords: { lat: number; lon: number } | null = null
 
 const tracksStore = useTracksStore()
 
@@ -146,7 +148,103 @@ function updateTracks(tracks: GpxTrack[]) {
   
   // Mettre à jour la visibilité des marqueurs selon le zoom actuel
   updateMarkersVisibility()
+  
+  // Trouver et afficher le point le plus haut
+  updateHighestPoint(tracks)
 }
+
+function updateHighestPoint(tracks: GpxTrack[]) {
+  if (!map) return
+  
+  // Supprimer l'ancien marqueur du point le plus haut
+  if (highestPointMarker) {
+    highestPointMarker.remove()
+    highestPointMarker = null
+  }
+  
+  // Trouver le point avec l'altitude maximale
+  let highestPoint: { lat: number; lon: number; ele: number; trackName: string; date?: Date; time?: string } | null = null
+  
+  tracks.forEach((track) => {
+    track.points.forEach((point) => {
+      if (point.ele !== undefined) {
+        if (!highestPoint || point.ele > highestPoint.ele) {
+          highestPoint = {
+            lat: point.lat,
+            lon: point.lon,
+            ele: point.ele,
+            trackName: track.name,
+            date: track.date || point.time,
+            time: point.time
+          }
+        }
+      }
+    })
+  })
+  
+  // Créer le marqueur si un point avec altitude a été trouvé
+  if (highestPoint) {
+    highestPointCoords = { lat: highestPoint.lat, lon: highestPoint.lon }
+    
+    const mountainIcon = L.divIcon({
+      html: '<div style="font-size: 24px; text-shadow: 2px 2px 3px rgba(0,0,0,0.5);">🏔️</div>',
+      className: 'mountain-marker',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    })
+    
+    highestPointMarker = L.marker([highestPoint.lat, highestPoint.lon], {
+      icon: mountainIcon,
+      zIndexOffset: 1000
+    }).addTo(map)
+    
+    let dateTimeStr = ''
+    if (highestPoint.date) {
+      const date = new Date(highestPoint.date)
+      dateTimeStr = date.toLocaleDateString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit' })
+      const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      if (timeStr !== '00:00') {
+        dateTimeStr += ' à ' + timeStr
+      }
+    } else if (highestPoint.time) {
+      const date = new Date(highestPoint.time)
+      dateTimeStr = date.toLocaleDateString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit' })
+      const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      if (timeStr !== '00:00') {
+        dateTimeStr += ' à ' + timeStr
+      }
+    }
+    
+    highestPointMarker.bindPopup(`
+      <div class="track-popup">
+        <h3>🏔️ Point le plus haut</h3>
+        <p><strong>Altitude:</strong> ${highestPoint.ele.toFixed(0)} m</p>
+        <p><strong>Trace:</strong> ${highestPoint.trackName}</p>
+        ${dateTimeStr ? `<p><strong>Date:</strong> ${dateTimeStr}</p>` : ''}
+      </div>
+    `)
+  } else {
+    highestPointCoords = null
+  }
+}
+
+function flyToHighestPoint() {
+  if (map && highestPointCoords) {
+    map.flyTo([highestPointCoords.lat, highestPointCoords.lon], 14, {
+      duration: 1.5
+    })
+    // Ouvrir le popup du point le plus haut
+    if (highestPointMarker) {
+      setTimeout(() => {
+        highestPointMarker?.openPopup()
+      }, 1500)
+    }
+  }
+}
+
+defineExpose({
+  flyToHighestPoint
+})
 
 function getTrackColor(track: GpxTrack): string {
   if (track.type === 'sport') {
