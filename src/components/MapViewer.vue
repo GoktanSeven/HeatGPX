@@ -60,14 +60,18 @@ function initMap() {
   map = L.map(mapRef.value, {
     center: [49.034, 2.476],
     zoom: 12,
-    zoomControl: false
+    zoomControl: true,
+    zoomAnimation: true,
+    fadeAnimation: true,
+    markerZoomAnimation: true
   })
 
   // Utiliser CartoDB Voyager (bon équilibre lisibilité/couleurs)
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
     maxZoom: 19,
-    subdomains: 'abcd'
+    subdomains: 'abcd',
+    keepBuffer: 4
   }).addTo(map)
 
   // Écouter les changements de zoom pour afficher/cacher les marqueurs
@@ -289,5 +293,16 @@ function formatDuration(seconds: number): string {
 :deep(.track-popup p) {
   margin: 5px 0;
   font-size: 14px;
+}
+
+/* Personnalisation des contrôles de zoom */
+:deep(.leaflet-control-zoom a) {
+  color: #FF6600 !important;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+:deep(.leaflet-control-zoom a:hover) {
+  color: #FF8833 !important;
 }
 </style>
